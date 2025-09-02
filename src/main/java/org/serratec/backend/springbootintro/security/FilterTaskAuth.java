@@ -1,7 +1,10 @@
 package org.serratec.backend.springbootintro.security;
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.serratec.backend.springbootintro.Repository.PessoaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -21,43 +24,61 @@ import java.util.Base64;
 @Component
 public class FilterTaskAuth extends OncePerRequestFilter {
 
+    @Autowired
+    private PessoaRepository pessoaRepository;
+    @Autowired
+    private Servlet servlet;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // autenticacao (usuario e senha)
-
-       var authorization = request.getHeader("Authorization");
-
-
-        /**
-         * substring - ele possui o metodo para extrair algum conteudo
-         */
-
-       var authEncoded = authorization.substring("Basic".length()).trim();
-
-        /**
-         * Conversao do array de bytes para uma string
-         */
-        byte[] authDecode = Base64.getDecoder().decode(authEncoded);
-        var authString = new String(authDecode);
-
-        //[username: "admin", password: "calabresa123"]
-       String[] credentials = authString.split(":");
-       String username = credentials[0];
-       String password = credentials[1];
-       System.out.println("Authorization");
-       System.out.println("username: " + username);
-       System.out.println("password: " + password);
+        //validacao da rota
+        var servletPath = request.getServletPath();
+            if (servletPath.equals("/tasks")) {
+                // autenticacao (usuario e senha)
+                var authorization = request.getHeader("Authorization");
 
 
-        // validacao (usuario)
+                /**
+                 * substring - ele possui o metodo para extrair algum conteudo
+                 */
 
-        // validacao (senha)
+                var authEncoded = authorization.substring("Basic".length()).trim();
 
-        // tudo ok
-        filterChain.doFilter(request, response);
+                /**
+                 * Conversao do array de bytes para uma string
+                 */
+                byte[] authDecode = Base64.getDecoder().decode(authEncoded);
+                var authString = new String(authDecode);
+
+                //[username: "admin", password: "calabresa123"]
+                String[] credentials = authString.split(":");
+                String username = credentials[0];
+                String password = credentials[1];
+                System.out.println("Authorization");
+                System.out.println("username: " + username);
+                System.out.println("password: " + password);
+
+
+                // validacao (usuario)
+                var user = this.pessoaRepository.findByUsername(username);
+                if(user == null) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }else{
+                    // validacao (senha)
+                    var passwrodVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
+                    if(passwrodVerify.verified){
+                        filterChain.doFilter(request, response);
+                    }else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                }
+
+            }else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
     }
 }
 
