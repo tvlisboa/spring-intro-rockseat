@@ -8,6 +8,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Base64;
 
+/**
+ * Classes que o spring gerencia
+ * precisa estar com suas anotacoes
+ * como controller, service, component etc.
+ */
+
 @Component
 public class FilterTaskAuth extends OncePerRequestFilter {
 
