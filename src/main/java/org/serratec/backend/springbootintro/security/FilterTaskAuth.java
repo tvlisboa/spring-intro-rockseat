@@ -14,6 +14,10 @@ import java.util.Base64;
  * como controller, service, component etc.
  */
 
+/**
+ * Rever aula de implementacao de auth
+ */
+
 @Component
 public class FilterTaskAuth extends OncePerRequestFilter {
 
@@ -28,15 +32,24 @@ public class FilterTaskAuth extends OncePerRequestFilter {
 
 
         /**
-         * substring - ele possui o metodo para remocao de algo
+         * substring - ele possui o metodo para extrair algum conteudo
          */
 
-       var authDecoded = authorization.substring("Basic".length()).trim();
+       var authEncoded = authorization.substring("Basic".length()).trim();
 
-          byte[] authDecod = Base64.getDecoder().decode(authDecoded);
+        /**
+         * Conversao do array de bytes para uma string
+         */
+        byte[] authDecode = Base64.getDecoder().decode(authEncoded);
+        var authString = new String(authDecode);
 
-        System.out.println("Authorization");
-        System.out.println(authorization);
+        //[username: "admin", password: "calabresa123"]
+       String[] credentials = authString.split(":");
+       String username = credentials[0];
+       String password = credentials[1];
+       System.out.println("Authorization");
+       System.out.println("username: " + username);
+       System.out.println("password: " + password);
 
 
         // validacao (usuario)
