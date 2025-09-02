@@ -14,7 +14,7 @@ public class TaskController {
     @Autowired
     private TaskRepository repository;
 
-    @PostMapping
+    @PostMapping("/")
     public TaskModel create(@RequestBody TaskModel taskModel) {
         System.out.println("Entrou no controller");
         var task = this.repository.save(taskModel);
