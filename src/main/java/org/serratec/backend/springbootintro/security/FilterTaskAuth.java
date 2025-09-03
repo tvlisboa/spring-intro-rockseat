@@ -26,8 +26,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
 
     @Autowired
     private PessoaRepository pessoaRepository;
-    @Autowired
-    private Servlet servlet;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,7 +35,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
 
         //validacao da rota
         var servletPath = request.getServletPath();
-            if (servletPath.equals("/tasks")) {
+            if (servletPath.equals("/tasks/")) {
                 // autenticacao (usuario e senha)
                 var authorization = request.getHeader("Authorization");
 
@@ -65,19 +64,20 @@ public class FilterTaskAuth extends OncePerRequestFilter {
                 // validacao (usuario)
                 var user = this.pessoaRepository.findByUsername(username);
                 if(user == null) {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Username not found");
                 }else{
                     // validacao (senha)
-                    var passwrodVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
-                    if(passwrodVerify.verified){
+                    var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
+                    if(passwordVerify.verified){
+                        request.setAttribute("idUser", user.getId());
                         filterChain.doFilter(request, response);
                     }else {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Wrong Password");
                     }
                 }
 
             }else {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
             }
     }
 }
