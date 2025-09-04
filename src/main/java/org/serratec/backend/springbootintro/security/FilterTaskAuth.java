@@ -35,10 +35,9 @@ public class FilterTaskAuth extends OncePerRequestFilter {
 
         //validacao da rota
         var servletPath = request.getServletPath();
-            if (servletPath.equals("/tasks/")) {
+            if (servletPath.startsWith("/tasks/")) {
                 // autenticacao (usuario e senha)
                 var authorization = request.getHeader("Authorization");
-
 
                 /**
                  * substring - ele possui o metodo para extrair algum conteudo
@@ -49,6 +48,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
                 /**
                  * Conversao do array de bytes para uma string
                  */
+
                 byte[] authDecode = Base64.getDecoder().decode(authEncoded);
                 var authString = new String(authDecode);
 
@@ -76,7 +76,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
                     }
                 }
 
-            }else {
+            }else{
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
             }
     }

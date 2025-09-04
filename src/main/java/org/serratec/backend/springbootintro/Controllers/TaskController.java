@@ -31,14 +31,14 @@ public class TaskController {
 
         var currentDate = LocalDateTime.now();
             if(currentDate.isAfter(taskModel.getDataInicio()) || currentDate.isAfter(taskModel.getDataTermino())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data invalida");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data informada é invalida");
             }
             if(taskModel.getCreatedAt().isAfter(taskModel.getDataTermino())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data invalida");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data informada é invalida");
             }
 
         var task = this.taskRepository.save(taskModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Tarefa realizada com sucesso");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Tarefa cadastrada com sucesso");
     }
 
     /**
@@ -54,7 +54,9 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskModel update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable Long id) {
+    public TaskModel update(@RequestBody TaskModel taskModel, @PathVariable Long id, HttpServletRequest request) {
+        var idUser = request.getAttribute("idUser");
+        taskModel.setIdUsuario((UUID) idUser);
         taskModel.setId(id);
         return this.taskRepository.save(taskModel);
     }
