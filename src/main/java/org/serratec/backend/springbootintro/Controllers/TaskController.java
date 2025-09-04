@@ -65,7 +65,7 @@ public class TaskController {
         var idUser = request.getAttribute("idUser");
 
         if(!taskModel.getIdUsuario().equals(idUser)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Acesso negado para essa task");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Acesso negado para essa tarefa");
         }
 
         Utils.copyNonNullProperties(taskModel, task);

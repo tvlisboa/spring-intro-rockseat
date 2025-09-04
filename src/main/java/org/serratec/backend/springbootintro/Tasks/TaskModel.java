@@ -38,5 +38,17 @@ public class TaskModel {
     private LocalDateTime createdAt;
 
 
+    /**
+     * Tratamento de erro para preenchimento de campo
+     */
+
+    public void setTituloTarefa(String tituloTarefa) throws Exception{
+        if(tituloTarefa.length() > 55){
+            throw new Exception("Comprimento maximo de 50 caracteres");
+        }
+        this.tituloTarefa = tituloTarefa;
+    }
+
+
 
 }
