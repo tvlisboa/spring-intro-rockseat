@@ -2,6 +2,7 @@ package org.serratec.backend.springbootintro.Controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import org.serratec.backend.springbootintro.Repository.TaskRepository;
 import org.serratec.backend.springbootintro.Tasks.TaskModel;
+import org.serratec.backend.springbootintro.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,10 +55,21 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskModel update(@RequestBody TaskModel taskModel, @PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity update(@RequestBody TaskModel taskModel, @PathVariable Long id, HttpServletRequest request) {
+        var task = this.taskRepository.findById(id).orElseThrow(null);
+
+        if(task == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa nao encontrada");
+        }
+
         var idUser = request.getAttribute("idUser");
-        taskModel.setIdUsuario((UUID) idUser);
-        taskModel.setId(id);
-        return this.taskRepository.save(taskModel);
+
+        if(!taskModel.getIdUsuario().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Acesso negado para essa task");
+        }
+
+        Utils.copyNonNullProperties(taskModel, task);
+        var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.ok().body(this.taskRepository.save(taskUpdated));
     }
 }
